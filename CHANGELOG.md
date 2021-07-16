@@ -2,8 +2,56 @@
 
 **Improvements**
 
+* `resource/cloudflare_logpush_job`: Add support for `"nel_reports"` as a dataset ([#1122](https://github.com/cloudflare/terraform-provider-cloudflare/issues/1122))
+* `resource/cloudflare_custom_hostname`: Allow SSL options to be optional when not required ([#1131](https://github.com/cloudflare/terraform-provider-cloudflare/issues/1131))
+* `resource/cloudflare_access_identity_provider`: Support optional Okta API token ([#1119](https://github.com/cloudflare/terraform-provider-cloudflare/issues/1119))
+
+**Fixes**
+
+* `resource/cloudflare_record`: Use correct `Import` method on resource ([#1116](https://github.com/cloudflare/terraform-provider-cloudflare/issues/1116))
+* `resource/cloudflare_worker_cron_trigger`: Account for deletion of scripts and force a refresh of triggers ([#1121](https://github.com/cloudflare/terraform-provider-cloudflare/issues/1121))
+* `resource/cloudflare_rate_limit`: Handle `origin_traffic` missing from API response ([#1125](https://github.com/cloudflare/terraform-provider-cloudflare/issues/1125))
+* `resource/cloudflare_record`: Support `allow_overwrite` for root records ([#1129](https://github.com/cloudflare/terraform-provider-cloudflare/issues/1129))
+
+## 2.23.0 (June 30th, 2021)
+
+- **New resource**: `cloudflare_waiting_room` ([#1053](https://github.com/cloudflare/terraform-provider-cloudflare/issues/1053)) 
+
+**Improvements**
+
+* `datasource/cloudflare_waf_rules`: Export `default_mode` as an attribute ([#1079](https://github.com/cloudflare/terraform-provider-cloudflare/issues/1079))
+
+**Fixes**
+
+* `resource/cloudflare_access_application`: Revert removal of schema changes causing existing applications unable to re-apply ([#1118](https://github.com/cloudflare/terraform-provider-cloudflare/issues/1118))
+
+## 2.22.0 (June 25th, 2021)
+
+- **New resource**: `cloudflare_static_route` ([#1098](https://github.com/cloudflare/terraform-provider-cloudflare/issues/1098))
+
+**Improvements**
+
+* `resource/cloudflare_origin_ca`: Ignore decreasing `requested_validity` ([#1043](https://github.com/cloudflare/terraform-provider-cloudflare/issues/1078))
+* `resource/waf_override`: Allow `rules` to be optional ([#1090](https://github.com/cloudflare/terraform-provider-cloudflare/issues/1090))
+* `resource/cloudflare_zone`: Don't attempt to set free zone rate plans as that is already the default ([#1102](https://github.com/cloudflare/terraform-provider-cloudflare/issues/1102))
+* `resource/cloudflare_access_application`: Ability to set `type` for Applications ([#1076](https://github.com/cloudflare/terraform-provider-cloudflare/issues/1076))
+* `resource/cloudflare_zone_lockdown`: Update documentation to show examples of multiple configurations ([#1106](https://github.com/cloudflare/terraform-provider-cloudflare/issues/1106))
+
+## 2.21.0 (May 26th, 2021)
+
+- **New resource**: `cloudflare_device_posture_rule` ([#1058](https://github.com/cloudflare/terraform-provider-cloudflare/issues/1058))
+- **New resource**: `cloudflare_teams_list` ([#1058](https://github.com/cloudflare/terraform-provider-cloudflare/issues/1058))
+
+**Improvements**
+
 * provider: Update to terraform-plugin-sdk v1.17.1 ([#1035](https://github.com/cloudflare/terraform-provider-cloudflare/issues/1035), [#1043](https://github.com/cloudflare/terraform-provider-cloudflare/issues/1043))
- 
+* `resource/cloudflare_logpush_job`: Allow `ownership_challenge` to be optional to account for Datadog, Splunk or S3-Compatible endpoints ([#1048](https://github.com/cloudflare/terraform-provider-cloudflare/issues/1048))
+* `resource/cloudflare_access_group`: Add support for `login_method` ([#1066](https://github.com/cloudflare/terraform-provider-cloudflare/issues/1066))
+* `resource/cloudflare_load_balancer`: Add support for `promixity` based steering ([#1072](https://github.com/cloudflare/terraform-provider-cloudflare/issues/1072))
+* `resource/cloudflare_access_application`: Prevent bad CORS configuration when credentials and all origins are permitted ([#1073](https://github.com/cloudflare/terraform-provider-cloudflare/issues/1073))
+* `resource/cloudflare_access_service_tokens`: Allow configuration to manage automatic renewal when the threshold is crossed and Terraform operations are performed within the window ([#1057](https://github.com/cloudflare/terraform-provider-cloudflare/issues/1057))
+* `resource/cloudflare_load_balancer_pool`: Allow support for `Host` header settings ([#1042](https://github.com/cloudflare/terraform-provider-cloudflare/issues/1042))
+
 **Fixes**
 
 * `resource/cloudflare_access_policy`: Allow empty slices in blocks when building policies ([#1034](https://github.com/cloudflare/terraform-provider-cloudflare/issues/1034))

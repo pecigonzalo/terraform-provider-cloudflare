@@ -129,6 +129,13 @@ var AccessGroupOptionSchemaElement = &schema.Resource{
 				Type: schema.TypeString,
 			},
 		},
+		"device_posture": {
+			Type:     schema.TypeList,
+			Optional: true,
+			Elem: &schema.Schema{
+				Type: schema.TypeString,
+			},
+		},
 		"gsuite": {
 			Type:     schema.TypeList,
 			Optional: true,
@@ -533,6 +540,10 @@ func BuildAccessGroupCondition(options map[string]interface{}) []interface{} {
 					group = append(group, cloudflare.AccessGroupLoginMethod{LoginMethod: struct {
 						ID string `json:"id"`
 					}{ID: value.(string)}})
+				case "device_posture":
+					group = append(group, cloudflare.AccessGroupDevicePosture{DevicePosture: struct {
+						ID string `json:"integration_uid"`
+					}{ID: value.(string)}})
 				}
 			}
 		}
@@ -553,6 +564,7 @@ func TransformAccessGroupForSchema(accessGroup []interface{}) []map[string]inter
 	commonName := ""
 	authMethod := ""
 	geos := []string{}
+	loginMethod := []string{}
 	oktaID := ""
 	oktaGroups := []string{}
 	gsuiteID := ""
@@ -564,6 +576,7 @@ func TransformAccessGroupForSchema(accessGroup []interface{}) []map[string]inter
 	azureIDs := []string{}
 	samlAttrName := ""
 	samlAttrValue := ""
+	devicePostureRuleIDs := []string{}
 
 	for _, group := range accessGroup {
 		for groupKey, groupValue := range group.(map[string]interface{}) {
@@ -600,6 +613,10 @@ func TransformAccessGroupForSchema(accessGroup []interface{}) []map[string]inter
 				for _, geo := range groupValue.(map[string]interface{}) {
 					geos = append(geos, geo.(string))
 				}
+			case "login_method":
+				for _, method := range groupValue.(map[string]interface{}) {
+					loginMethod = append(loginMethod, method.(string))
+				}
 			case "okta":
 				oktaCfg := groupValue.(map[string]interface{})
 				oktaID = oktaCfg["identity_provider_id"].(string)
@@ -624,6 +641,10 @@ func TransformAccessGroupForSchema(accessGroup []interface{}) []map[string]inter
 			case "group":
 				for _, group := range groupValue.(map[string]interface{}) {
 					groups = append(groups, group.(string))
+				}
+			case "device_posture":
+				for _, dprID := range groupValue.(map[string]interface{}) {
+					devicePostureRuleIDs = append(devicePostureRuleIDs, dprID.(string))
 				}
 			default:
 				log.Printf("[DEBUG] Access Group key %q not transformed", groupKey)
@@ -670,6 +691,12 @@ func TransformAccessGroupForSchema(accessGroup []interface{}) []map[string]inter
 	if len(geos) > 0 {
 		data = append(data, map[string]interface{}{
 			"geo": geos,
+		})
+	}
+
+	if len(loginMethod) > 0 {
+		data = append(data, map[string]interface{}{
+			"login_method": loginMethod,
 		})
 	}
 
@@ -727,6 +754,12 @@ func TransformAccessGroupForSchema(accessGroup []interface{}) []map[string]inter
 	if len(groups) > 0 {
 		data = append(data, map[string]interface{}{
 			"group": groups,
+		})
+	}
+
+	if len(devicePostureRuleIDs) > 0 {
+		data = append(data, map[string]interface{}{
+			"device_posture": devicePostureRuleIDs,
 		})
 	}
 

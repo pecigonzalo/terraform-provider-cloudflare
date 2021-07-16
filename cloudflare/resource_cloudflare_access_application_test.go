@@ -34,6 +34,7 @@ func TestAccCloudflareAccessApplicationBasic(t *testing.T) {
 					resource.TestCheckResourceAttr(name, "zone_id", zoneID),
 					resource.TestCheckResourceAttr(name, "name", rnd),
 					resource.TestCheckResourceAttr(name, "domain", fmt.Sprintf("%s.%s", rnd, domain)),
+					resource.TestCheckResourceAttr(name, "type", "self_hosted"),
 					resource.TestCheckResourceAttr(name, "session_duration", "24h"),
 					resource.TestCheckResourceAttr(name, "cors_headers.#", "0"),
 					resource.TestCheckResourceAttr(name, "auto_redirect_to_identity", "false"),
@@ -56,6 +57,7 @@ func TestAccCloudflareAccessApplicationBasic(t *testing.T) {
 					resource.TestCheckResourceAttr(name, "account_id", accountID),
 					resource.TestCheckResourceAttr(name, "name", rnd),
 					resource.TestCheckResourceAttr(name, "domain", fmt.Sprintf("%s.%s", rnd, domain)),
+					resource.TestCheckResourceAttr(name, "type", "self_hosted"),
 					resource.TestCheckResourceAttr(name, "session_duration", "24h"),
 					resource.TestCheckResourceAttr(name, "cors_headers.#", "0"),
 					resource.TestCheckResourceAttr(name, "auto_redirect_to_identity", "false"),
@@ -82,6 +84,7 @@ func TestAccCloudflareAccessApplicationWithCORS(t *testing.T) {
 					resource.TestCheckResourceAttr(name, "zone_id", zoneID),
 					resource.TestCheckResourceAttr(name, "name", rnd),
 					resource.TestCheckResourceAttr(name, "domain", fmt.Sprintf("%s.%s", rnd, domain)),
+					resource.TestCheckResourceAttr(name, "type", "self_hosted"),
 					resource.TestCheckResourceAttr(name, "session_duration", "24h"),
 					resource.TestCheckResourceAttr(name, "cors_headers.#", "1"),
 					resource.TestCheckResourceAttr(name, "cors_headers.0.allowed_methods.#", "3"),
@@ -111,6 +114,7 @@ func TestAccCloudflareAccessApplicationWithAutoRedirectToIdentity(t *testing.T) 
 					resource.TestCheckResourceAttr(name, "zone_id", zoneID),
 					resource.TestCheckResourceAttr(name, "name", rnd),
 					resource.TestCheckResourceAttr(name, "domain", fmt.Sprintf("%s.%s", rnd, domain)),
+					resource.TestCheckResourceAttr(name, "type", "self_hosted"),
 					resource.TestCheckResourceAttr(name, "session_duration", "24h"),
 					resource.TestCheckResourceAttr(name, "auto_redirect_to_identity", "true"),
 				),
@@ -136,6 +140,7 @@ func TestAccCloudflareAccessApplicationWithEnableBindingCookie(t *testing.T) {
 					resource.TestCheckResourceAttr(name, "zone_id", zoneID),
 					resource.TestCheckResourceAttr(name, "name", rnd),
 					resource.TestCheckResourceAttr(name, "domain", fmt.Sprintf("%s.%s", rnd, domain)),
+					resource.TestCheckResourceAttr(name, "type", "self_hosted"),
 					resource.TestCheckResourceAttr(name, "session_duration", "24h"),
 					resource.TestCheckResourceAttr(name, "enable_binding_cookie", "true"),
 				),
@@ -161,6 +166,7 @@ func TestAccCloudflareAccessApplicationWithCustomDenyFields(t *testing.T) {
 					resource.TestCheckResourceAttr(name, "zone_id", zoneID),
 					resource.TestCheckResourceAttr(name, "name", rnd),
 					resource.TestCheckResourceAttr(name, "domain", fmt.Sprintf("%s.%s", rnd, domain)),
+					resource.TestCheckResourceAttr(name, "type", "self_hosted"),
 					resource.TestCheckResourceAttr(name, "session_duration", "24h"),
 					resource.TestCheckResourceAttr(name, "custom_deny_message", "denied!"),
 					resource.TestCheckResourceAttr(name, "custom_deny_url", "https://www.cloudflare.com"),
@@ -187,6 +193,7 @@ func TestAccCloudflareAccessApplicationWithADefinedIdps(t *testing.T) {
 					resource.TestCheckResourceAttr(name, "zone_id", zoneID),
 					resource.TestCheckResourceAttr(name, "name", rnd),
 					resource.TestCheckResourceAttr(name, "domain", fmt.Sprintf("%s.%s", rnd, domain)),
+					resource.TestCheckResourceAttr(name, "type", "self_hosted"),
 					resource.TestCheckResourceAttr(name, "session_duration", "24h"),
 					resource.TestCheckResourceAttr(name, "auto_redirect_to_identity", "true"),
 					resource.TestCheckResourceAttr(name, "allowed_idps.#", "1"),
@@ -199,11 +206,12 @@ func TestAccCloudflareAccessApplicationWithADefinedIdps(t *testing.T) {
 func testAccCloudflareAccessApplicationConfigBasic(rnd string, domain string, identifier AccessIdentifier) string {
 	return fmt.Sprintf(`
 resource "cloudflare_access_application" "%[1]s" {
-	%[3]s_id                  = "%[4]s"
-	name                      = "%[1]s"
-	domain                    = "%[1]s.%[2]s"
-	session_duration          = "24h"
-	auto_redirect_to_identity = false
+  %[3]s_id                  = "%[4]s"
+  name                      = "%[1]s"
+  domain                    = "%[1]s.%[2]s"
+  type                      = "self_hosted"
+  session_duration          = "24h"
+  auto_redirect_to_identity = false
 }
 `, rnd, domain, identifier.Type, identifier.Value)
 }
@@ -214,6 +222,7 @@ resource "cloudflare_access_application" "%[1]s" {
   zone_id          = "%[2]s"
   name             = "%[1]s"
   domain           = "%[1]s.%[3]s"
+  type             = "self_hosted"
   session_duration = "24h"
   cors_headers {
     allowed_methods = ["GET", "POST", "OPTIONS"]
@@ -232,6 +241,7 @@ resource "cloudflare_access_application" "%[1]s" {
   zone_id                   = "%[2]s"
   name                      = "%[1]s"
   domain                    = "%[1]s.%[3]s"
+  type                      = "self_hosted"
   session_duration          = "24h"
   auto_redirect_to_identity = true
 }
@@ -244,6 +254,7 @@ resource "cloudflare_access_application" "%[1]s" {
   zone_id                   = "%[2]s"
   name                      = "%[1]s"
   domain                    = "%[1]s.%[3]s"
+  type                      = "self_hosted"
   session_duration          = "24h"
   enable_binding_cookie     = true
 }
@@ -256,9 +267,10 @@ resource "cloudflare_access_application" "%[1]s" {
   zone_id                   = "%[2]s"
   name                      = "%[1]s"
   domain                    = "%[1]s.%[3]s"
+  type                      = "self_hosted"
   session_duration          = "24h"
   custom_deny_message       = "denied!"
-	custom_deny_url           = "https://www.cloudflare.com"
+  custom_deny_url           = "https://www.cloudflare.com"
 }
 `, rnd, zoneID, domain)
 }
@@ -274,6 +286,7 @@ resource "cloudflare_access_application" "%[1]s" {
   zone_id                   = "%[2]s"
   name                      = "%[1]s"
   domain                    = "%[1]s.%[3]s"
+  type                      = "self_hosted"
   session_duration          = "24h"
   auto_redirect_to_identity = true
   allowed_idps              = [cloudflare_access_identity_provider.%[1]s.id]
@@ -435,12 +448,73 @@ func TestAccCloudflareAccessApplicationWithInvalidSessionDuration(t *testing.T) 
 	})
 }
 
+func TestAccessApplicationMisconfiguredCORSCredentialsAllowingAllOrigins(t *testing.T) {
+	// Temporarily unset CLOUDFLARE_API_TOKEN if it is set as the Access
+	// service does not yet support the API tokens and it results in
+	// misleading state error messages.
+	if os.Getenv("CLOUDFLARE_API_TOKEN") != "" {
+		defer func(apiToken string) {
+			os.Setenv("CLOUDFLARE_API_TOKEN", apiToken)
+		}(os.Getenv("CLOUDFLARE_API_TOKEN"))
+		os.Setenv("CLOUDFLARE_API_TOKEN", "")
+	}
+
+	rnd := generateRandomResourceName()
+	zone := os.Getenv("CLOUDFLARE_DOMAIN")
+	zoneID := os.Getenv("CLOUDFLARE_ZONE_ID")
+
+	resource.Test(t, resource.TestCase{
+		PreCheck: func() {
+			testAccessAccPreCheck(t)
+			testAccPreCheckAccount(t)
+		},
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config:      testAccessApplicationMisconfiguredCORSAllowAllOriginsWithCredentials(rnd, zone, zoneID),
+				ExpectError: regexp.MustCompile(regexp.QuoteMeta(`CORS credentials are not permitted when all origins are allowed`)),
+			},
+		},
+	})
+}
+
+func TestAccessApplicationMisconfiguredCORSCredentialsAllowingWildcardOrigins(t *testing.T) {
+	// Temporarily unset CLOUDFLARE_API_TOKEN if it is set as the Access
+	// service does not yet support the API tokens and it results in
+	// misleading state error messages.
+	if os.Getenv("CLOUDFLARE_API_TOKEN") != "" {
+		defer func(apiToken string) {
+			os.Setenv("CLOUDFLARE_API_TOKEN", apiToken)
+		}(os.Getenv("CLOUDFLARE_API_TOKEN"))
+		os.Setenv("CLOUDFLARE_API_TOKEN", "")
+	}
+
+	rnd := generateRandomResourceName()
+	zone := os.Getenv("CLOUDFLARE_DOMAIN")
+	zoneID := os.Getenv("CLOUDFLARE_ZONE_ID")
+
+	resource.Test(t, resource.TestCase{
+		PreCheck: func() {
+			testAccessAccPreCheck(t)
+			testAccPreCheckAccount(t)
+		},
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config:      testAccessApplicationMisconfiguredCORSAllowWildcardOriginWithCredentials(rnd, zone, zoneID),
+				ExpectError: regexp.MustCompile(regexp.QuoteMeta(`CORS credentials are not permitted when all origins are allowed`)),
+			},
+		},
+	})
+}
+
 func testAccessApplicationWithZoneID(resourceID, zone, zoneID string) string {
 	return fmt.Sprintf(`
     resource "cloudflare_access_application" "%[1]s" {
       name    = "%[1]s"
       zone_id = "%[3]s"
       domain  = "%[1]s.%[2]s"
+      type    = "self_hosted"
     }
   `, resourceID, zone, zoneID)
 }
@@ -451,6 +525,7 @@ func testAccessApplicationWithZoneIDUpdated(resourceID, zone, zoneID string) str
       name    = "%[1]s-updated"
       zone_id = "%[3]s"
       domain  = "%[1]s.%[2]s"
+      type    = "self_hosted"
     }
   `, resourceID, zone, zoneID)
 }
@@ -461,6 +536,7 @@ func testAccessApplicationWithMissingCORSMethods(resourceID, zone, zoneID string
       name    = "%[1]s-updated"
       zone_id = "%[3]s"
       domain  = "%[1]s.%[2]s"
+      type    = "self_hosted"
 
     cors_headers {
       allow_all_origins = true
@@ -475,6 +551,7 @@ func testAccessApplicationWithMissingCORSOrigins(resourceID, zone, zoneID string
       name    = "%[1]s-updated"
       zone_id = "%[3]s"
       domain  = "%[1]s.%[2]s"
+      type    = "self_hosted"
 
     cors_headers {
       allow_all_methods = true
@@ -489,7 +566,42 @@ func testAccessApplicationWithInvalidSessionDuration(resourceID, zone, zoneID st
       name             = "%[1]s-updated"
       zone_id          = "%[3]s"
       domain           = "%[1]s.%[2]s"
+      type             = "self_hosted"
       session_duration = "24z"
+  }
+  `, resourceID, zone, zoneID)
+}
+
+func testAccessApplicationMisconfiguredCORSAllowAllOriginsWithCredentials(resourceID, zone, zoneID string) string {
+	return fmt.Sprintf(`
+    resource "cloudflare_access_application" "%[1]s" {
+      name             = "%[1]s-updated"
+      zone_id          = "%[3]s"
+      domain           = "%[1]s.%[2]s"
+      type             = "self_hosted"
+
+      cors_headers {
+        allowed_methods = ["GET"]
+        allow_all_origins = true
+        allow_credentials = true
+      }
+  }
+  `, resourceID, zone, zoneID)
+}
+
+func testAccessApplicationMisconfiguredCORSAllowWildcardOriginWithCredentials(resourceID, zone, zoneID string) string {
+	return fmt.Sprintf(`
+    resource "cloudflare_access_application" "%[1]s" {
+      name             = "%[1]s-updated"
+      zone_id          = "%[3]s"
+      domain           = "%[1]s.%[2]s"
+      type             = "self_hosted"
+
+      cors_headers {
+        allowed_methods = ["GET"]
+        allowed_origins = ["*"]
+        allow_credentials = true
+      }
   }
   `, resourceID, zone, zoneID)
 }

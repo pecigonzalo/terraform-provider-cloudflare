@@ -48,6 +48,12 @@ func resourceCloudflareAccessApplication() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 			},
+			"type": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Default:      "self_hosted",
+				ValidateFunc: validation.StringInSlice([]string{"self_hosted", "ssh", "vnc", "file"}, false),
+			},
 			"session_duration": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -144,10 +150,12 @@ func resourceCloudflareAccessApplicationCreate(d *schema.ResourceData, meta inte
 	client := meta.(*cloudflare.API)
 
 	allowedIDPList := expandInterfaceToStringList(d.Get("allowed_idps"))
+	appType := d.Get("type").(string)
 
 	newAccessApplication := cloudflare.AccessApplication{
 		Name:                   d.Get("name").(string),
 		Domain:                 d.Get("domain").(string),
+		Type:                   cloudflare.AccessApplicationType(appType),
 		SessionDuration:        d.Get("session_duration").(string),
 		AutoRedirectToIdentity: d.Get("auto_redirect_to_identity").(bool),
 		EnableBindingCookie:    d.Get("enable_binding_cookie").(bool),
@@ -217,6 +225,7 @@ func resourceCloudflareAccessApplicationRead(d *schema.ResourceData, meta interf
 	d.Set("aud", accessApplication.AUD)
 	d.Set("session_duration", accessApplication.SessionDuration)
 	d.Set("domain", accessApplication.Domain)
+	d.Set("type", accessApplication.Type)
 	d.Set("auto_redirect_to_identity", accessApplication.AutoRedirectToIdentity)
 	d.Set("enable_binding_cookie", accessApplication.EnableBindingCookie)
 	d.Set("custom_deny_message", accessApplication.CustomDenyMessage)
@@ -235,11 +244,13 @@ func resourceCloudflareAccessApplicationUpdate(d *schema.ResourceData, meta inte
 	client := meta.(*cloudflare.API)
 
 	allowedIDPList := expandInterfaceToStringList(d.Get("allowed_idps"))
+	appType := d.Get("type").(string)
 
 	updatedAccessApplication := cloudflare.AccessApplication{
 		ID:                     d.Id(),
 		Name:                   d.Get("name").(string),
 		Domain:                 d.Get("domain").(string),
+		Type:                   cloudflare.AccessApplicationType(appType),
 		SessionDuration:        d.Get("session_duration").(string),
 		AutoRedirectToIdentity: d.Get("auto_redirect_to_identity").(bool),
 		EnableBindingCookie:    d.Get("enable_binding_cookie").(bool),
@@ -349,6 +360,15 @@ func convertCORSSchemaToStruct(d *schema.ResourceData) (*cloudflare.AccessApplic
 		CORSConfig.AllowAllOrigins = d.Get("cors_headers.0.allow_all_origins").(bool)
 		CORSConfig.AllowCredentials = d.Get("cors_headers.0.allow_credentials").(bool)
 		CORSConfig.MaxAge = d.Get("cors_headers.0.max_age").(int)
+
+		// Prevent misconfigurations of CORS when `Access-Control-Allow-Origin` is
+		// a wildcard (aka all origins) and using credentials.
+		// See https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS/Errors/CORSNotSupportingCredentials
+		if CORSConfig.AllowCredentials {
+			if contains(CORSConfig.AllowedOrigins, "*") || CORSConfig.AllowAllOrigins {
+				return nil, errors.New("CORS credentials are not permitted when all origins are allowed")
+			}
+		}
 
 		// Ensure that should someone forget to set allowed methods (either
 		// individually or *), we throw an error to prevent getting into an
